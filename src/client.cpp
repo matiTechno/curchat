@@ -14,11 +14,13 @@ int main()
         tcp::resolver resolver(ioService);
         auto endpointIt = resolver.resolve({DEFAULT_IP, DEFAULT_PORT});
 
-        TcpClient tcpClient(ioService, endpointIt, msgPool, "dummy2");
+        std::string name = "dummy2";
+
+        TcpClient tcpClient(ioService, endpointIt, msgPool, name);
 
         auto future = std::async(std::launch::async, [&ioService](){ioService.run();});
 
-        CursesClient cursesClient(msgPool, tcpClient);
+        CursesClient cursesClient(msgPool, tcpClient, name);
 
         cursesClient.run();
 

@@ -9,7 +9,7 @@ class TcpClient;
 class CursesClient
 {
 public:
-    CursesClient(MsgPool& msgPool, TcpClient& tcpClient);
+    CursesClient(MsgPool& msgPool, TcpClient& tcpClient, const std::string& name);
 
     ~CursesClient();
 
@@ -19,6 +19,7 @@ private:
     MsgPool& msgPool;
     TcpClient& tcpClient;
     std::string inputBuff;
+    const std::string name;
     static bool quit;
 
     void drawLineH(int Y, int winX);

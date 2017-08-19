@@ -7,9 +7,10 @@
 
 bool CursesClient::quit = false;
 
-CursesClient::CursesClient(MsgPool& msgPool, TcpClient& tcpClient):
+CursesClient::CursesClient(MsgPool& msgPool, TcpClient& tcpClient, const std::string& name):
     msgPool(msgPool),
-    tcpClient(tcpClient)
+    tcpClient(tcpClient),
+    name(name)
 {
     initscr();
     std::signal(SIGINT, quitCallback);
@@ -57,7 +58,8 @@ void CursesClient::run()
             break;
 
         case '\n':
-            msgPool.add(inputBuff);
+            msgPool.add(name + ": " + inputBuff); // it could be done by tcpClient
+            // but wouldn't feel so smooth, because of the delay
             tcpClient.write(inputBuff);
             inputBuff.clear();
             break;
