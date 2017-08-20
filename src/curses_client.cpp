@@ -141,7 +141,7 @@ void CursesClient::drawLineH(int Y, int winX)
     move(Y, 0);
     attron(COLOR_PAIR(1));
     for(int i = 0; i < winX; ++i)
-        addch(ACS_HLINE);
+        addch('=');
     attroff(COLOR_PAIR(1));
 }
 
