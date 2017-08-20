@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(curchat)
 
 # TODO:
-# * clean, remove string duplication?
+# * clean, remove string coupling?
 
 # OPTIONS
 #===========

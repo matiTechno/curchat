@@ -37,7 +37,7 @@ using ChatSessionPtr = std::shared_ptr<ChatSession>;
 
 // ------------------------------------------------
 
-// taken from asio example, but is it thread safe?
+// taken from the asio example, but is it thread safe?
 class ChatRoom
 {
 public:

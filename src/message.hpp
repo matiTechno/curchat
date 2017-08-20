@@ -10,7 +10,7 @@ public:
     Message() = default;
     Message(const std::string& str);
 
-    // returns true if msg header is correct
+    // returns true if the msg header is correct
     bool decodeHeader();
 
     const char* getBody() const {return data + headerLength;}

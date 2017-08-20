@@ -43,12 +43,12 @@ void CursesClient::run()
         getmaxyx(stdscr, winY, winX);
 
         // * min one line for msgs
-        // * line
+        // * line separator
         // * min one line for input
         if(winY < 3)
             throw std::runtime_error("error: too small terminal window");
 
-        std::size_t maxChars = winX * (winY - 2) - 1; // -1 because of cursor
+        std::size_t maxChars = winX * (winY - 2) - 1; // -1 because of the cursor
 
         switch(c)
         {
@@ -162,7 +162,7 @@ int CursesClient::getInputBuffSizeY(const std::string& str, int winX)
 
 int CursesClient::getMsgSizeY(const std::string& str, int winX)
 {
-    // + 1 because we don't count cursor as in getInputBuffSizeY
+    // + 1 because we don't count the cursor as in getInputBuffSizeY
     return getInputBuffSizeY(str, winX + 1);
 }
 
