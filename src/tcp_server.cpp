@@ -92,7 +92,7 @@ void ChatRoom::join(ChatSessionPtr session)
 void ChatRoom::leave(ChatSessionPtr session)
 {
     sessions.erase(session);
-    deliver("\\b\\1" + session->getName() + " has left the chat.", nullptr);
+    deliver("\\b\\5" + session->getName() + " has left the chat.", nullptr);
 }
 
 void ChatRoom::deliver(const Message& msg, const ChatSession* sender)
