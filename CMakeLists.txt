@@ -17,6 +17,9 @@ find_package(Threads REQUIRED)
 
 if(${BUILD_CLIENT})
     find_package(PkgConfig REQUIRED)
+    if(APPLE)
+        set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/local/opt/ncurses/lib/pkgconfig")
+    endif()
     pkg_search_module(NCURSES REQUIRED ncurses)
 endif()
 
