@@ -3,18 +3,45 @@
 #include "tcp_client.hpp"
 #include <future>
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
 
-int main()
+int main(int argc, char** argv)
 {
     try
     {
+        if(argc != 1 && argc != 2 && argc != 4)
+        {
+            std::cout << "usage: curchat\n"
+                         "       curchat <name>\n"
+                         "       curchat <name> <host> <port>"
+                      << std::endl;
+            return 0;
+        }
+
+        std::string name = "dummy";
+        if(argc > 1)
+            name = argv[1];
+        else
+        {
+            const char* homeDir = std::getenv("HOME");
+            if(homeDir)
+            {
+                std::ifstream file(homeDir + std::string("/.curchatrc"));
+                if(file)
+                    file >> name;
+            }
+        }
+
         MsgPool msgPool;
 
         asio::io_service ioService;
         tcp::resolver resolver(ioService);
-        auto endpointIt = resolver.resolve({DEFAULT_IP, DEFAULT_PORT});
-
-        std::string name = "dummy2";
+        tcp::resolver::iterator endpointIt;
+        if(argc == 4)
+            endpointIt = resolver.resolve({argv[2], argv[3]});
+        else
+            endpointIt = resolver.resolve({DEFAULT_HOST, DEFAULT_PORT});
 
         TcpClient tcpClient(ioService, endpointIt, msgPool, name);
 

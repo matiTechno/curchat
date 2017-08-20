@@ -2,14 +2,12 @@ cmake_minimum_required(VERSION 3.1)
 project(curchat)
 
 # TODO:
-# * add install target
-# * generate configuration file with username
-# * download asio when not found
+# * clean, remove string duplication?
 
 # OPTIONS
 #===========
 set(DEFAULT_PORT 6969)
-set(DEFAULT_IP 127.0.0.1)
+set(DEFAULT_HOST 127.0.0.1)
 option(DEV_BUILD "compile with debug symbols and no optimization" OFF)
 option(BUILD_SERVER "build server executable" ON)
 option(BUILD_CLIENT "build client executable"  ON)
@@ -30,12 +28,16 @@ elseif(EXISTS "/usr/boost/asio.hpp")
 elseif(EXISTS "usr/local/include/asio.hpp")
     include_directories("usr/local/include")
 
-else()
-    message(FATAL_ERROR "-- asio not found in /usr/include and \
-    /usr/include/boost and /usr/local/include, terminating...")
-endif()
+elseif(EXISTS "${CMAKE_SOURCE_DIR}/src/asio/asio/include/asio.hpp")
+    execute_process(COMMAND git pull
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src/asio")
+    include_directories("${CMAKE_SOURCE_DIR}/src/asio/asio/include")
 
-message("-- found asio")
+else()
+    execute_process(COMMAND git clone https://github.com/chriskohlhoff/asio
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src")
+    include_directories("${CMAKE_SOURCE_DIR}/src/asio/asio/include")
+endif()
 
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wextra -pedantic")
 if(DEV_BUILD)
@@ -47,7 +49,7 @@ endif()
 
 add_definitions(-DASIO_STANDALONE
     "-DDEFAULT_PORT=\"${DEFAULT_PORT}\""
-    "-DDEFAULT_IP=\"${DEFAULT_IP}\"")
+    "-DDEFAULT_HOST=\"${DEFAULT_HOST}\"")
 include_directories(src)
 
 if(${BUILD_CLIENT})
@@ -60,9 +62,14 @@ if(${BUILD_CLIENT})
         src/msg_pool.hpp
         # obj file duplication
         src/message.cpp
+        # added for qtcreator
+        readme.txt
+        .gitignore
         )
     target_compile_options(curchat PRIVATE ${NCURSES_CFLAGS})
     target_link_libraries(curchat ${NCURSES_LDFLAGS} Threads::Threads)
+    install(TARGETS curchat DESTINATION bin)
+    file(WRITE "$ENV{HOME}/.curchatrc" "$ENV{USER}")
 endif()
 
 if(${BUILD_SERVER})
@@ -74,4 +81,5 @@ if(${BUILD_SERVER})
         src/message.hpp
         )
     target_link_libraries(curserver Threads::Threads)
+    install(TARGETS curserver DESTINATION bin)
 endif()
