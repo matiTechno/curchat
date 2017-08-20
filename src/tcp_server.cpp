@@ -48,7 +48,11 @@ void ChatSession::readBody()
                 room.deliver("\\b\\2" + name + " has joined the chat. Welcome!", nullptr);
             }
             else
-                room.deliver("\\b" + name + ":\\r " + readMsg.getStdString(), this);
+            {
+                std::string msg = name + ":\\r " + readMsg.getStdString();
+                room.deliver("\\b\\4" + msg, this);
+                deliver("\\b\\1" + msg);
+            }
 
             readHeader();
         }

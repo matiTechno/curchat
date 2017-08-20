@@ -17,6 +17,5 @@ command line options:
 TODO:
 * reconnecting
 * connection status
-* colors --- done
-* when running outside the terminal emulator (in the background) consumes 100% cpu, why?
-* screen flickering when running without Xorg session, rendering performance?
+* when running outside the terminal emulator (for example launched by d-menu) consumes 100% cpu, why?
+  fix or prevent it if possible

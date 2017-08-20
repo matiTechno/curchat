@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
         auto future = std::async(std::launch::async, [&ioService](){ioService.run();});
 
-        CursesClient cursesClient(msgPool, tcpClient, name);
+        CursesClient cursesClient(msgPool, tcpClient);
 
         cursesClient.run();
 

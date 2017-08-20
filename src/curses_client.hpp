@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 class MsgPool;
 class TcpClient;
@@ -9,7 +8,7 @@ class TcpClient;
 class CursesClient
 {
 public:
-    CursesClient(MsgPool& msgPool, TcpClient& tcpClient, const std::string& name);
+    CursesClient(MsgPool& msgPool, TcpClient& tcpClient);
 
     ~CursesClient();
 
@@ -19,12 +18,11 @@ private:
     MsgPool& msgPool;
     TcpClient& tcpClient;
     std::string inputBuff;
-    const std::string name;
     static bool quit;
 
     void drawLineH(int Y, int winX);
-    int getInputBuffSizeY(const std::string& str, int winX);
-    int getMsgSizeY(const std::string& str, int winX);
+    int getInputBuffSizeY(const std::string& str, int winX) const;
+    int getMsgSizeY(const std::string& str, int winX) const;
     static void quitCallback(int);
-    bool isSpecial(const char* str) const;
+    bool isMod(const char* str) const;
 };

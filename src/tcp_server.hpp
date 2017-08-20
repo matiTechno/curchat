@@ -43,7 +43,7 @@ class ChatRoom
 public:
     void join(ChatSessionPtr session);
     void leave(ChatSessionPtr session);
-    // if session != nullptr msg won't be delivered
+    // if sender != nullptr msg won't be delivered
     // to the corresponding client
     void deliver(const Message& msg, const ChatSession* sender);
 

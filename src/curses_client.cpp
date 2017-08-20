@@ -7,10 +7,9 @@
 
 bool CursesClient::quit = false;
 
-CursesClient::CursesClient(MsgPool& msgPool, TcpClient& tcpClient, const std::string& name):
+CursesClient::CursesClient(MsgPool& msgPool, TcpClient& tcpClient):
     msgPool(msgPool),
-    tcpClient(tcpClient),
-    name(name)
+    tcpClient(tcpClient)
 {
     initscr();
     std::signal(SIGINT, quitCallback);
@@ -60,8 +59,6 @@ void CursesClient::run()
             break;
 
         case '\n':
-            msgPool.add("\\b\\6" + name + ":\\r " + inputBuff); // it could be done by tcpClient
-            // but wouldn't feel so smooth, because of the delay
             tcpClient.write(inputBuff);
             inputBuff.clear();
             break;
@@ -88,7 +85,7 @@ void CursesClient::run()
 
         int inputBuffY = winY - getInputBuffSizeY(inputBuff, winX);
 
-        clear();
+        erase();
 
         // print msgPool
         msgPool.use([this, inputBuffY, winX](const std::vector<std::string>& msgs)
@@ -124,7 +121,7 @@ void CursesClient::run()
                 move(chunkY, 0);
                 for(const char* c = it->first; *c != '\0'; ++c)
                 {
-                    if(isSpecial(c))
+                    if(isMod(c))
                     {
                         ++c;
                         if(*c == 'r')
@@ -162,7 +159,7 @@ void CursesClient::drawLineH(int Y, int winX)
     attroff(COLOR_PAIR(1));
 }
 
-int CursesClient::getInputBuffSizeY(const std::string& str, int winX)
+int CursesClient::getInputBuffSizeY(const std::string& str, int winX) const
 {
     int x = 0, y = 1;
     for(std::size_t i = 0; i < str.size(); ++i)
@@ -177,15 +174,12 @@ int CursesClient::getInputBuffSizeY(const std::string& str, int winX)
     return y;
 }
 
-int CursesClient::getMsgSizeY(const std::string& str, int winX)
+int CursesClient::getMsgSizeY(const std::string& str, int winX) const
 {
-    // + 1 because we don't count the cursor as in getInputBuffSizeY
-    //return getInputBuffSizeY(str, winX + 1);
-
     int x = 0, y = 1;
     for(std::size_t i = 0; i < str.size(); ++i)
     {
-        if(isSpecial(&str[i]))
+        if(isMod(&str[i]))
         {
             ++i;
             continue;
@@ -205,7 +199,7 @@ void CursesClient::quitCallback(int)
     quit = true;
 }
 
-bool CursesClient::isSpecial(const char* str) const
+bool CursesClient::isMod(const char* str) const
 {
     if(*str == '\\' && *(++str) != '\0' && (*str == 'r' || *str == 'b'
                                             || (*str >= 48 + COLOR_BLACK && *str <= 48 + COLOR_WHITE)))
