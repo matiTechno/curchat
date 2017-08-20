@@ -18,7 +18,9 @@ CursesClient::CursesClient(MsgPool& msgPool, TcpClient& tcpClient, const std::st
     halfdelay(1);
     start_color();
     use_default_colors();
-    init_pair(1, COLOR_GREEN, -1);
+
+    for(int i = COLOR_BLACK; i < COLOR_WHITE; ++i)
+        init_pair(i, i, -1);
 }
 
 CursesClient::~CursesClient()
@@ -58,7 +60,7 @@ void CursesClient::run()
             break;
 
         case '\n':
-            msgPool.add(name + ": " + inputBuff); // it could be done by tcpClient
+            msgPool.add("\\b\\6" + name + ":\\r " + inputBuff); // it could be done by tcpClient
             // but wouldn't feel so smooth, because of the delay
             tcpClient.write(inputBuff);
             inputBuff.clear();
@@ -120,8 +122,23 @@ void CursesClient::run()
             for(auto it = chunks.rbegin(); it != chunks.rend(); ++it)
             {
                 move(chunkY, 0);
-                printw(it->first);
+                for(const char* c = it->first; *c != '\0'; ++c)
+                {
+                    if(isSpecial(c))
+                    {
+                        ++c;
+                        if(*c == 'r')
+                            standend();
+                        else if(*c == 'b')
+                            attron(A_BOLD);
+                        else
+                            attron(COLOR_PAIR(*c - 48));
+                    }
+                    else
+                        addch(*c);
+                }
                 chunkY += it->second;
+                standend();
             }
         });
 
@@ -139,7 +156,7 @@ void CursesClient::run()
 void CursesClient::drawLineH(int Y, int winX)
 {
     move(Y, 0);
-    attron(COLOR_PAIR(1));
+    attron(COLOR_PAIR(COLOR_GREEN));
     for(int i = 0; i < winX; ++i)
         addch('=');
     attroff(COLOR_PAIR(1));
@@ -163,10 +180,35 @@ int CursesClient::getInputBuffSizeY(const std::string& str, int winX)
 int CursesClient::getMsgSizeY(const std::string& str, int winX)
 {
     // + 1 because we don't count the cursor as in getInputBuffSizeY
-    return getInputBuffSizeY(str, winX + 1);
+    //return getInputBuffSizeY(str, winX + 1);
+
+    int x = 0, y = 1;
+    for(std::size_t i = 0; i < str.size(); ++i)
+    {
+        if(isSpecial(&str[i]))
+        {
+            ++i;
+            continue;
+        }
+        ++x;
+        if(x == winX + 1)
+        {
+            ++y;
+            x = 0;
+        }
+    }
+    return y;
 }
 
 void CursesClient::quitCallback(int)
 {
     quit = true;
+}
+
+bool CursesClient::isSpecial(const char* str) const
+{
+    if(*str == '\\' && *(++str) != '\0' && (*str == 'r' || *str == 'b'
+                                            || (*str >= 48 + COLOR_BLACK && *str <= 48 + COLOR_WHITE)))
+        return true;
+    return false;
 }

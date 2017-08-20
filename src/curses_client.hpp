@@ -26,4 +26,5 @@ private:
     int getInputBuffSizeY(const std::string& str, int winX);
     int getMsgSizeY(const std::string& str, int winX);
     static void quitCallback(int);
+    bool isSpecial(const char* str) const;
 };

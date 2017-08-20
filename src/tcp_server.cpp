@@ -45,10 +45,10 @@ void ChatSession::readBody()
             if(name.empty())
             {
                 name = readMsg.getStdString();
-                room.deliver(name + " has joined the chat. Welcome!", nullptr);
+                room.deliver("\\b\\2" + name + " has joined the chat. Welcome!", nullptr);
             }
             else
-                room.deliver(name + ": " + readMsg.getStdString(), this);
+                room.deliver("\\b" + name + ":\\r " + readMsg.getStdString(), this);
 
             readHeader();
         }
@@ -88,7 +88,7 @@ void ChatRoom::join(ChatSessionPtr session)
 void ChatRoom::leave(ChatSessionPtr session)
 {
     sessions.erase(session);
-    deliver(session->getName() + " has left the chat.", nullptr);
+    deliver("\\b\\1" + session->getName() + " has left the chat.", nullptr);
 }
 
 void ChatRoom::deliver(const Message& msg, const ChatSession* sender)
