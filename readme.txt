@@ -1,3 +1,9 @@
+dependencies:
+             * asio (if not present will be cloned locally)
+             * ncurses
+
+on mac: brew install ncurses asio(optionally)
+
 ^C - exit
 If the welcome message appeared you are connected to the server.
 

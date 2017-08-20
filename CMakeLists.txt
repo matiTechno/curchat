@@ -26,10 +26,13 @@ endif()
 if(EXISTS "/usr/include/asio.hpp")
 
 elseif(EXISTS "/usr/boost/asio.hpp")
-    include_directories("usr/include/boost")
+    include_directories("/usr/include/boost")
 
-elseif(EXISTS "usr/local/include/asio.hpp")
-    include_directories("usr/local/include")
+elseif(EXISTS "/usr/local/include/asio.hpp")
+    include_directories("/usr/local/include")
+
+elseif(EXISTS "/usr/local/include/boost/asio.hpp"
+        include_directories("/usr/local/include/boost")
 
 elseif(EXISTS "${CMAKE_SOURCE_DIR}/src/asio/asio/include/asio.hpp")
     execute_process(COMMAND git pull
