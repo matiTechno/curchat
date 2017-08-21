@@ -6,8 +6,8 @@ project(curchat)
 
 # OPTIONS
 #===========
-set(DEFAULT_PORT 6969)
-set(DEFAULT_HOST 127.0.0.1)
+set(DEFAULT_PORT 6969 CACHE STRING "default port")
+set(DEFAULT_HOST 127.0.0.1 CACHE STRING "default host")
 option(DEV_BUILD "compile with debug symbols and no optimization" OFF)
 option(BUILD_SERVER "build server executable" ON)
 option(BUILD_CLIENT "build client executable"  ON)

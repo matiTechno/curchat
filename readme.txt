@@ -7,7 +7,7 @@ on mac: brew install ncurses asio(optionally)
 ^C - exit
 If the welcome message appeared you are connected to the server.
 
-command line options:
+command-line arguments:
 
     curserver <port>
 
@@ -17,5 +17,6 @@ command line options:
 TODO:
 * reconnecting
 * connection status
-* when running outside the terminal emulator (for example launched by d-menu) consumes 100% cpu, why?
-  fix or prevent it if possible
+* when running outside the terminal emulator (for example launched by d-menu),
+  consumes 100% cpu
+* better command-line argument parsing
