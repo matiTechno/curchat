@@ -10,7 +10,7 @@ class MsgPool
 public:
     void add(const std::string& str)
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(mutex);
         (void)lock;
 
         if(msgs.size() == maxMsgs)
@@ -22,7 +22,7 @@ public:
 
     void use(std::function<void(const std::vector<std::string>)> fun)
     {
-        std::unique_lock<std::mutex> lock;
+        std::lock_guard<std::mutex> lock(mutex);
         (void)lock;
 
         fun(msgs);
@@ -32,7 +32,7 @@ public:
 
     bool wasModified() const
     {
-        std::unique_lock<std::mutex> lock;
+        std::lock_guard<std::mutex> lock(mutex);
         (void)lock;
         return modified;
     }
@@ -40,6 +40,6 @@ public:
 private:
     enum {maxMsgs = 100};
     std::vector<std::string> msgs;
-    std::mutex mutex;
+    mutable std::mutex mutex;
     bool modified = false;
 };
