@@ -18,7 +18,7 @@ CursesClient::CursesClient(MsgPool& msgPool, TcpClient& tcpClient):
     start_color();
     use_default_colors();
 
-    for(int i = COLOR_BLACK; i < COLOR_WHITE; ++i)
+    for(int i = COLOR_BLACK; i <= COLOR_WHITE; ++i)
         init_pair(i, i, -1);
 }
 
