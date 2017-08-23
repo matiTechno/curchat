@@ -54,8 +54,9 @@ else()
 endif()
 
 add_definitions(-DASIO_STANDALONE
-    "-DDEFAULT_PORT=\"${DEFAULT_PORT}\""
-    "-DDEFAULT_HOST=\"${DEFAULT_HOST}\"")
+    -DDEFAULT_PORT=${DEFAULT_PORT}
+    -DDEFAULT_PORT_STR="${DEFAULT_PORT}"
+    -DDEFAULT_HOST_STR="${DEFAULT_HOST}")
 include_directories(src)
 
 if(${BUILD_CLIENT})

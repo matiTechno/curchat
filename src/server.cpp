@@ -18,7 +18,7 @@ int main(int argc, const char** argv)
         if(argc == 2)
             port = std::atoi(argv[1]);
         else
-            port = std::atoi(DEFAULT_PORT);
+            port = DEFAULT_PORT;
 
         asio::io_service ioService;
         tcp::endpoint endpoint(tcp::v4(), port);

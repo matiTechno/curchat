@@ -23,3 +23,4 @@ TODO:
 * limit the number of sessions
 * validate session name
 * recent msgs colouring based on the session name and ip
+* construct strings in ChatRoom not ChatSession

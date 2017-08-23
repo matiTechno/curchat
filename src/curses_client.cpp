@@ -42,7 +42,6 @@ void CursesClient::run()
     {
         char c = getch();
 
-        int winY, winX;
         getmaxyx(stdscr, winY, winX);
 
         // * min one line for msgs

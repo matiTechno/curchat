@@ -41,7 +41,7 @@ int main(int argc, char** argv)
         if(argc == 4)
             endpointIt = resolver.resolve({argv[2], argv[3]});
         else
-            endpointIt = resolver.resolve({DEFAULT_HOST, DEFAULT_PORT});
+            endpointIt = resolver.resolve({DEFAULT_HOST_STR, DEFAULT_PORT_STR});
 
         TcpClient tcpClient(ioService, endpointIt, msgPool, name);
 

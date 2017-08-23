@@ -12,7 +12,7 @@ class TcpClient
 {
 public:
     TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpointIt,
-              MsgPool& msgPool, const std::string& name);
+              MsgPool& msgPool, std::string name);
 
     void send(Message msg);
     void close();
@@ -24,7 +24,7 @@ private:
     std::vector<Message> msgsToWrite;
     MsgPool& msgPool;
 
-    void connect(tcp::resolver::iterator endpointIt, const std::string& name);
+    void connect(tcp::resolver::iterator endpointIt, std::string name);
     void readHeader();
     void readBody();
     void write();

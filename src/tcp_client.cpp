@@ -2,18 +2,18 @@
 #include "msg_pool.hpp"
 
 TcpClient::TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpointIt,
-                     MsgPool& msgPool, const std::string& name):
+                     MsgPool& msgPool, std::string name):
 
     ioService(ioService),
     socket(ioService),
     msgPool(msgPool)
 {
-    connect(endpointIt, name);
+    connect(endpointIt, std::move(name));
 }
 
 void TcpClient::send(Message msg)
 {
-    ioService.post([this, msg]()
+    ioService.post([this, msg = std::move(msg)]()
     {
         auto busy = msgsToWrite.size();
         msgsToWrite.push_back(std::move(msg));
@@ -27,14 +27,14 @@ void TcpClient::close()
     ioService.post([this](){socket.close();});
 }
 
-void TcpClient::connect(tcp::resolver::iterator endpointIt, const std::string& name)
+void TcpClient::connect(tcp::resolver::iterator endpointIt, std::string name)
 {
     asio::async_connect(socket, endpointIt,
-                        [this, name](asio::error_code ec, tcp::resolver::iterator)
+                        [this, name = std::move(name)](asio::error_code ec, tcp::resolver::iterator)
     {
         if(!ec)
         {
-            send(name);
+            send(std::move(name));
             readHeader();
         }
     });

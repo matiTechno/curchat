@@ -8,19 +8,19 @@
 class MsgPool
 {
 public:
-    void add(const std::string& str)
+    void add(std::string str)
     {
         std::lock_guard<std::mutex> lock(mutex);
         (void)lock;
 
         if(msgs.size() == maxMsgs)
             msgs.erase(msgs.begin());
-        msgs.push_back(str);
+        msgs.push_back(std::move(str));
 
         modified = true;
     }
 
-    void use(std::function<void(const std::vector<std::string>)> fun)
+    void use(std::function<void(const std::vector<std::string>&)> fun)
     {
         std::lock_guard<std::mutex> lock(mutex);
         (void)lock;
