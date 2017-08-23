@@ -20,3 +20,6 @@ TODO:
 * when running outside the terminal emulator (for example launched by d-menu),
   consumes 100% cpu
 * better command-line argument parsing
+* limit the number of sessions
+* validate session name
+* recent msgs colouring based on the session name and ip

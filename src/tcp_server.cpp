@@ -11,10 +11,10 @@ void ChatSession::start()
     readHeader();
 }
 
-void ChatSession::deliver(const Message& msg)
+void ChatSession::deliver(Message msg)
 {
     auto busy = msgsToWrite.size();
-    msgsToWrite.push_back(msg);
+    msgsToWrite.push_back(std::move(msg));
     if(!busy)
         write();
 }
@@ -80,8 +80,6 @@ void ChatSession::write()
     });
 }
 
-// ------------------------------------------------
-
 void ChatRoom::join(ChatSessionPtr session)
 {
     sessions.insert(session);
@@ -95,19 +93,16 @@ void ChatRoom::leave(ChatSessionPtr session)
     deliver("\\b\\5" + session->getName() + " has left the chat.", nullptr);
 }
 
-void ChatRoom::deliver(const Message& msg, const ChatSession* sender)
+void ChatRoom::deliver(Message msg, const ChatSession* sender)
 {
-    recentMsgs.push_back(msg);
-
-    while(recentMsgs.size() > maxRecentMsgs)
+    if(recentMsgs.size() == maxRecentMsgs)
         recentMsgs.erase(recentMsgs.begin());
+    recentMsgs.push_back(std::move(msg));
 
     for(auto session: sessions)
         if(&*session != sender)
-            session->deliver(msg);
+            session->deliver(recentMsgs.back());
 }
-
-// ------------------------------------------------
 
 TcpServer::TcpServer(asio::io_service& ioService, const tcp::endpoint& endpoint):
     acceptor(ioService, endpoint),

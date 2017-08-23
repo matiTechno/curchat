@@ -17,7 +17,6 @@ public:
 private:
     MsgPool& msgPool;
     TcpClient& tcpClient;
-    std::string inputBuff;
     static bool quit;
 
     void drawLineH(int Y, int winX);
@@ -25,4 +24,5 @@ private:
     int getMsgSizeY(const std::string& str, int winX) const;
     static void quitCallback(int);
     bool isMod(const char* str) const;
+    void add(std::string& inputBuff, std::size_t maxChars, char c);
 };

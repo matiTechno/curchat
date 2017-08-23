@@ -14,7 +14,7 @@ public:
     TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpointIt,
               MsgPool& msgPool, const std::string& name);
 
-    void write(const Message& msg);
+    void send(Message msg);
     void close();
 
 private:
@@ -27,5 +27,5 @@ private:
     void connect(tcp::resolver::iterator endpointIt, const std::string& name);
     void readHeader();
     void readBody();
-    void asioWrite();
+    void write();
 };

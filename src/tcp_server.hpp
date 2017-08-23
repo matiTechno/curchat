@@ -10,15 +10,13 @@
 using asio::ip::tcp;
 class ChatRoom;
 
-// ------------------------------------------------
-
 class ChatSession: public std::enable_shared_from_this<ChatSession>
 {
 public:
     ChatSession(tcp::socket socket, ChatRoom& room);
 
     void start();
-    void deliver(const Message& msg);
+    void deliver(Message msg);
     const std::string& getName() const {return name;}
 
 private:
@@ -35,9 +33,6 @@ private:
 
 using ChatSessionPtr = std::shared_ptr<ChatSession>;
 
-// ------------------------------------------------
-
-// taken from the asio example, but is it thread safe?
 class ChatRoom
 {
 public:
@@ -45,15 +40,13 @@ public:
     void leave(ChatSessionPtr session);
     // if sender != nullptr msg won't be delivered
     // to the corresponding client
-    void deliver(const Message& msg, const ChatSession* sender);
+    void deliver(Message msg, const ChatSession* sender);
 
 private:
-    std::set<ChatSessionPtr> sessions;
     enum {maxRecentMsgs = 100};
+    std::set<ChatSessionPtr> sessions;
     std::vector<Message> recentMsgs;
 };
-
-// ------------------------------------------------
 
 class TcpServer
 {

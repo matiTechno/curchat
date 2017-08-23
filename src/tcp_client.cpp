@@ -11,14 +11,14 @@ TcpClient::TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpoi
     connect(endpointIt, name);
 }
 
-void TcpClient::write(const Message& msg)
+void TcpClient::send(Message msg)
 {
     ioService.post([this, msg]()
     {
-        bool busy = msgsToWrite.size();
-        msgsToWrite.push_back(msg);
+        auto busy = msgsToWrite.size();
+        msgsToWrite.push_back(std::move(msg));
         if(!busy)
-            asioWrite();
+            write();
     });
 }
 
@@ -34,7 +34,7 @@ void TcpClient::connect(tcp::resolver::iterator endpointIt, const std::string& n
     {
         if(!ec)
         {
-            write(name);
+            send(name);
             readHeader();
         }
     });
@@ -67,7 +67,7 @@ void TcpClient::readBody()
     });
 }
 
-void TcpClient::asioWrite()
+void TcpClient::write()
 {
     auto& msg = msgsToWrite.front();
     asio::async_write(socket, asio::buffer(msg.getData(), msg.getDataLength()),
@@ -77,7 +77,7 @@ void TcpClient::asioWrite()
         {
             msgsToWrite.erase(msgsToWrite.begin());
             if(msgsToWrite.size())
-                asioWrite();
+                write();
         }
         else
             socket.close();

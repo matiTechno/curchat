@@ -36,6 +36,8 @@ void CursesClient::run()
     move(winY - 1, 0);
     refresh();
 
+    std::string inputBuff;
+
     while(!quit)
     {
         char c = getch();
@@ -59,7 +61,7 @@ void CursesClient::run()
             break;
 
         case '\n':
-            tcpClient.write(inputBuff);
+            tcpClient.send(inputBuff);
             inputBuff.clear();
             break;
 
@@ -70,17 +72,12 @@ void CursesClient::run()
 
         case '\t':
             for(int i = 0; i < 4; ++i)
-            {
-                if(inputBuff.size() < maxChars)
-                    inputBuff.push_back(' ');
-                else
-                    break;
-            }
+                add(inputBuff, maxChars, ' ');
             break;
 
         default: // printable ascii
-            if(c >= 32 && c <= 126 && inputBuff.size() < maxChars)
-                inputBuff.push_back(c);
+            if(c >= 32 && c <= 126)
+                add(inputBuff, maxChars, c);
         }
 
         int inputBuffY = winY - getInputBuffSizeY(inputBuff, winX);
@@ -205,4 +202,10 @@ bool CursesClient::isMod(const char* str) const
                                             || (*str >= 48 + COLOR_BLACK && *str <= 48 + COLOR_WHITE)))
         return true;
     return false;
+}
+
+void CursesClient::add(std::string& inputBuff, std::size_t maxChars, char c)
+{
+    if(inputBuff.size() < maxChars)
+        inputBuff.push_back(c);
 }
