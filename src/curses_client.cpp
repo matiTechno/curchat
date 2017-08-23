@@ -142,7 +142,7 @@ void CursesClient::run()
         drawLineH(inputBuffY - 1, winX);
 
         move(inputBuffY, 0);
-        printw(inputBuff.c_str());
+        addstr(inputBuff.c_str());
 
         refresh();
     }
