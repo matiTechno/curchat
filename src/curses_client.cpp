@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <iostream>
 #include <csignal>
+#include <chrono>
 
 bool CursesClient::quit = false;
 
@@ -38,8 +39,22 @@ void CursesClient::run()
 
     std::string inputBuff;
 
+    double timeElapsed = 0;
+    auto timeStart = std::chrono::steady_clock::now();
+
     while(!quit)
     {
+        auto timeEnd = std::chrono::steady_clock::now();
+        timeElapsed += std::chrono::duration<double>(timeEnd - timeStart).count();
+        timeStart = timeEnd;
+
+        if(timeElapsed >= 5)
+        {
+            timeElapsed = 0;
+            if(tcpClient.isConnected() == false)
+                tcpClient.reconnect();
+        }
+
         char c = getch();
 
         getmaxyx(stdscr, winY, winX);

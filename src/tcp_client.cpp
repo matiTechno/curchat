@@ -6,9 +6,16 @@ TcpClient::TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpoi
 
     ioService(ioService),
     socket(ioService),
-    msgPool(msgPool)
+    msgPool(msgPool),
+    name(std::move(name)),
+    endpointIt(endpointIt)
 {
-    connect(endpointIt, std::move(name));
+    reconnect();
+}
+
+TcpClient::~TcpClient()
+{
+    future.get();
 }
 
 void TcpClient::send(Message msg)
@@ -27,17 +34,26 @@ void TcpClient::close()
     ioService.post([this](){socket.close();});
 }
 
-void TcpClient::connect(tcp::resolver::iterator endpointIt, std::string name)
+void TcpClient::reconnect()
 {
+    if(future.valid()) // when reconnect() is called for the first time
+        //                future does not have a valid state
+        future.get();
+
+    ioService.reset();
+
     asio::async_connect(socket, endpointIt,
-                        [this, name = std::move(name)](asio::error_code ec, tcp::resolver::iterator)
+                        [this](asio::error_code ec, tcp::resolver::iterator)
     {
         if(!ec)
         {
-            send(std::move(name));
+            connected = true;
+            send(name);
             readHeader();
         }
     });
+
+    future = std::async(std::launch::async, [this](){ioService.run();});
 }
 
 void TcpClient::readHeader()
@@ -48,7 +64,7 @@ void TcpClient::readHeader()
         if(!ec && readMsg.decodeHeader())
             readBody();
         else
-            socket.close();
+            shutdown();
     });
 }
 
@@ -63,7 +79,7 @@ void TcpClient::readBody()
             readHeader();
         }
         else
-            socket.close();
+            shutdown();
     });
 }
 
@@ -80,6 +96,12 @@ void TcpClient::write()
                 write();
         }
         else
-            socket.close();
+            shutdown();
     });
+}
+
+void TcpClient::shutdown()
+{
+    connected = false;
+    socket.close();
 }

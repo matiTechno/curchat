@@ -1,7 +1,6 @@
 #include "msg_pool.hpp"
 #include "curses_client.hpp"
 #include "tcp_client.hpp"
-#include <future>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -35,6 +34,7 @@ int main(int argc, char** argv)
 
         MsgPool msgPool;
 
+        // move this to TcpClient
         asio::io_service ioService;
         tcp::resolver resolver(ioService);
         tcp::resolver::iterator endpointIt;
@@ -45,13 +45,9 @@ int main(int argc, char** argv)
 
         TcpClient tcpClient(ioService, endpointIt, msgPool, name);
 
-        auto future = std::async(std::launch::async, [&ioService](){ioService.run();});
-
         CursesClient cursesClient(msgPool, tcpClient);
 
         cursesClient.run();
-
-        future.get();
     }
     catch(const std::exception& e)
     {
