@@ -52,7 +52,7 @@ void CursesClient::run()
         {
             timeElapsed = 0;
             if(tcpClient.isConnected() == false)
-                tcpClient.reconnect();
+                tcpClient.connect();
         }
 
         char c = getch();
@@ -75,11 +75,23 @@ void CursesClient::run()
             break;
 
         case '\n':
-            tcpClient.send(inputBuff);
+            if(tcpClient.isConnected())
+                // might be invoked right after ioService stops
+                // fix this!
+                tcpClient.send(inputBuff);
+
             inputBuff.clear();
             break;
 
         case 127: // backspace
+            // ncurses glitch ?
+            //
+            // when the cursor goes up one line and the previous character
+            // was not a space, it disappears until next input
+            //
+            // it does not happen if clear() is called instead of erase()
+            // or if curchat runs without X session
+
             if(inputBuff.size())
                 inputBuff.pop_back();
             break;
@@ -157,8 +169,6 @@ void CursesClient::run()
 
         refresh();
     }
-
-    tcpClient.close();
 }
 
 void CursesClient::drawLineH(int Y, int winX)

@@ -4,38 +4,34 @@
 #include <string>
 #include <vector>
 #include <asio.hpp>
-#include <atomic>
 #include <future>
 
 using asio::ip::tcp;
 class MsgPool;
 
+// warning: possible multiple close() calls on the same socket
 class TcpClient
 {
 public:
-    TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpointIt,
-              MsgPool& msgPool, std::string name);
+    TcpClient(MsgPool& msgPool, std::string name, const char* host, const char* port);
 
     ~TcpClient();
 
     void send(Message msg);
-    void close();
-    void reconnect();
-    bool isConnected() const {return connected;}
+    void connect();
+    bool isConnected() const;
 
 private:
-    asio::io_service& ioService;
+    MsgPool& msgPool;
+    std::string name;
+    asio::io_service ioService;
     tcp::socket socket;
+    tcp::resolver::iterator endpointIt;
     Message readMsg;
     std::vector<Message> msgsToWrite;
-    MsgPool& msgPool;
-    std::atomic_bool connected{false};
     std::future<void> future;
-    std::string name;
-    tcp::resolver::iterator endpointIt;
 
     void readHeader();
     void readBody();
     void write();
-    void shutdown();
 };

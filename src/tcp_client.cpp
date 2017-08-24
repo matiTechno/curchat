@@ -1,21 +1,21 @@
 #include "tcp_client.hpp"
 #include "msg_pool.hpp"
 
-TcpClient::TcpClient(asio::io_service& ioService, tcp::resolver::iterator endpointIt,
-                     MsgPool& msgPool, std::string name):
-
-    ioService(ioService),
-    socket(ioService),
+TcpClient::TcpClient(MsgPool& msgPool, std::string name, const char* host, const char* port):
     msgPool(msgPool),
     name(std::move(name)),
-    endpointIt(endpointIt)
+    socket(ioService)
 {
-    reconnect();
+    tcp::resolver resolver(ioService);
+    endpointIt = resolver.resolve({host, port});
 }
 
 TcpClient::~TcpClient()
 {
-    future.get();
+    ioService.post([this](){socket.close();});
+
+    if(future.valid())
+        future.get();
 }
 
 void TcpClient::send(Message msg)
@@ -29,25 +29,21 @@ void TcpClient::send(Message msg)
     });
 }
 
-void TcpClient::close()
-{
-    ioService.post([this](){socket.close();});
-}
+bool TcpClient::isConnected() const {return !ioService.stopped();}
 
-void TcpClient::reconnect()
+void TcpClient::connect()
 {
-    if(future.valid()) // when reconnect() is called for the first time
-        //                future does not have a valid state
+    if(future.valid())
         future.get();
 
-    ioService.reset();
+    ioService.restart();
 
+    socket = tcp::socket(ioService);
     asio::async_connect(socket, endpointIt,
                         [this](asio::error_code ec, tcp::resolver::iterator)
     {
         if(!ec)
         {
-            connected = true;
             send(name);
             readHeader();
         }
@@ -64,7 +60,7 @@ void TcpClient::readHeader()
         if(!ec && readMsg.decodeHeader())
             readBody();
         else
-            shutdown();
+            socket.close();
     });
 }
 
@@ -79,7 +75,7 @@ void TcpClient::readBody()
             readHeader();
         }
         else
-            shutdown();
+            socket.close();
     });
 }
 
@@ -96,12 +92,6 @@ void TcpClient::write()
                 write();
         }
         else
-            shutdown();
+            socket.close();
     });
-}
-
-void TcpClient::shutdown()
-{
-    connected = false;
-    socket.close();
 }

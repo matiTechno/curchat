@@ -34,16 +34,16 @@ int main(int argc, char** argv)
 
         MsgPool msgPool;
 
-        // move this to TcpClient
-        asio::io_service ioService;
-        tcp::resolver resolver(ioService);
-        tcp::resolver::iterator endpointIt;
+        const char* host = DEFAULT_HOST_STR;
+        const char* port = DEFAULT_PORT_STR;
         if(argc == 4)
-            endpointIt = resolver.resolve({argv[2], argv[3]});
-        else
-            endpointIt = resolver.resolve({DEFAULT_HOST_STR, DEFAULT_PORT_STR});
+        {
+            host = argv[2];
+            port = argv[3];
+        }
 
-        TcpClient tcpClient(ioService, endpointIt, msgPool, name);
+        TcpClient tcpClient(msgPool, name, host, port);
+        tcpClient.connect();
 
         CursesClient cursesClient(msgPool, tcpClient);
 

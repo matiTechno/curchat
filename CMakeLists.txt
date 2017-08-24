@@ -6,8 +6,8 @@ project(curchat)
 
 # OPTIONS
 #===========
-set(DEFAULT_PORT 6969 CACHE STRING "default port")
 set(DEFAULT_HOST 127.0.0.1 CACHE STRING "default host")
+set(DEFAULT_PORT 6969 CACHE STRING "default port")
 option(DEV_BUILD "compile with debug symbols and no optimization" OFF)
 option(BUILD_SERVER "build server executable" ON)
 option(BUILD_CLIENT "build client executable"  ON)
@@ -54,9 +54,9 @@ else()
 endif()
 
 add_definitions(-DASIO_STANDALONE
+    -DDEFAULT_HOST_STR="${DEFAULT_HOST}"
     -DDEFAULT_PORT=${DEFAULT_PORT}
-    -DDEFAULT_PORT_STR="${DEFAULT_PORT}"
-    -DDEFAULT_HOST_STR="${DEFAULT_HOST}")
+    -DDEFAULT_PORT_STR="${DEFAULT_PORT}")
 include_directories(src)
 
 if(${BUILD_CLIENT})
