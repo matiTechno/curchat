@@ -15,7 +15,6 @@ command-line arguments:
     curchat <name> <host> <port>
 
 TODO:
-* reconnecting
 * connection status
 * when running outside the terminal emulator (for example launched by d-menu),
   consumes 100% cpu
