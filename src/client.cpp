@@ -1,6 +1,6 @@
 #include "msg_pool.hpp"
-#include "curses_client.hpp"
 #include "tcp_client.hpp"
+#include "curses_client.hpp"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>

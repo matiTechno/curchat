@@ -9,7 +9,7 @@
 using asio::ip::tcp;
 class MsgPool;
 
-// warning: possible multiple close() calls on the same socket
+// warning: multiple close() calls on the same socket
 class TcpClient
 {
 public:

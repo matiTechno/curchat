@@ -29,7 +29,7 @@ void TcpClient::send(Message msg)
     });
 }
 
-bool TcpClient::isConnected() const {return !ioService.stopped();}
+bool TcpClient::isConnected() const {return !ioService.stopped() && socket.is_open();}
 
 void TcpClient::connect()
 {

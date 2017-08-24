@@ -19,7 +19,7 @@ private:
     TcpClient& tcpClient;
     static bool quit;
 
-    void drawLineH(int Y, int winX);
+    void drawLineH(int Y, int winX, bool animate);
     int getInputBuffSizeY(const std::string& str, int winX) const;
     int getMsgSizeY(const std::string& str, int winX) const;
     static void quitCallback(int);

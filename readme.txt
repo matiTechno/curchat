@@ -4,8 +4,21 @@ dependencies:
 
 on mac: brew install ncurses asio(optionally)
 
-^C - exit
-If the welcome message appeared you are connected to the server.
+BUILD AND INSTALL:
+    git clone https://github.com/matiTechno/curchat.git
+    cd curchat
+    mkdir build
+    cd build
+    cmake .. (use ccmake to see options)
+    make
+    sudo make install
+
+TEST RUN:
+    curserver &
+    curchat
+
+curchat:
+        * ^C - exit
 
 command-line arguments:
 
@@ -15,11 +28,12 @@ command-line arguments:
     curchat <name> <host> <port>
 
 TODO:
-* connection status
-* when running outside the terminal emulator (for example launched by d-menu),
-  consumes 100% cpu
-* better command-line argument parsing
-* limit the number of sessions
-* validate session name
-* recent msgs colouring based on the session name and ip
-* construct strings in ChatRoom not in ChatSession
+     * when running outside the terminal emulator (for example launched by d-menu),
+       consumes 100% cpu
+     * better command-line argument parsing
+     * recent msgs colouring based on the session name and ip
+
+HOT:
+    * limit the number of sessions
+    * validate session name
+    * construct strings in ChatRoom not in ChatSession

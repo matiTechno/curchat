@@ -33,7 +33,7 @@ void CursesClient::run()
 {
     int winX, winY;
     getmaxyx(stdscr, winY, winX);
-    drawLineH(winY - 2, winX);
+    drawLineH(winY - 2, winX, true);
     move(winY - 1, 0);
     refresh();
 
@@ -48,10 +48,12 @@ void CursesClient::run()
         timeElapsed += std::chrono::duration<double>(timeEnd - timeStart).count();
         timeStart = timeEnd;
 
-        if(timeElapsed >= 5)
+        bool repaint = false;
+        if(timeElapsed >= 2)
         {
+            repaint = true;
             timeElapsed = 0;
-            if(tcpClient.isConnected() == false)
+            if(!tcpClient.isConnected())
                 tcpClient.connect();
         }
 
@@ -70,7 +72,7 @@ void CursesClient::run()
         switch(c)
         {
         case ERR: // timeout
-            if(!msgPool.wasModified())
+            if(!msgPool.wasModified() && !repaint)
                 continue;
             break;
 
@@ -162,7 +164,7 @@ void CursesClient::run()
             }
         });
 
-        drawLineH(inputBuffY - 1, winX);
+        drawLineH(inputBuffY - 1, winX, repaint);
 
         move(inputBuffY, 0);
         addstr(inputBuff.c_str());
@@ -171,13 +173,44 @@ void CursesClient::run()
     }
 }
 
-void CursesClient::drawLineH(int Y, int winX)
+void CursesClient::drawLineH(int Y, int winX, bool animate)
 {
     move(Y, 0);
-    attron(COLOR_PAIR(COLOR_GREEN));
+
+    int flags = COLOR_PAIR(COLOR_GREEN);
+    char c = '=';
+    bool connected = tcpClient.isConnected();
+
+    if(!connected)
+    {
+        flags = COLOR_PAIR(COLOR_RED) | A_BOLD;
+        c = '-';
+    }
+
+    attron(flags);
     for(int i = 0; i < winX; ++i)
-        addch('=');
-    attroff(COLOR_PAIR(1));
+        addch(c);
+    standend();
+
+    if(!connected)
+    {
+        static int pos = 0, dir = 1;
+        if(pos >= winX - 1)
+        {
+            pos = winX - 1;
+            dir = -1;
+        }
+        else if(pos == 0)
+            dir = 1;
+
+        move(Y, pos);
+        attron(COLOR_PAIR(COLOR_GREEN) | A_BOLD);
+        addch('?');
+        standend();
+
+        if(animate)
+            pos += dir;
+    }
 }
 
 int CursesClient::getInputBuffSizeY(const std::string& str, int winX) const

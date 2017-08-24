@@ -1,5 +1,5 @@
-#include <iostream>
 #include "tcp_server.hpp"
+#include <iostream>
 #include <cstdlib>
 
 int main(int argc, const char** argv)
