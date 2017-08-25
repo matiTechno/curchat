@@ -12,7 +12,7 @@ TcpClient::TcpClient(MsgPool& msgPool, std::string name, const char* host, const
 
 TcpClient::~TcpClient()
 {
-    ioService.post([this](){socket.close();});
+    ioService.post([this](){closeSocket();});
 
     if(future.valid())
         future.get();
@@ -29,7 +29,7 @@ void TcpClient::send(Message msg)
     });
 }
 
-bool TcpClient::isConnected() const {return !ioService.stopped() && socket.is_open();}
+bool TcpClient::isConnected() const {return !ioService.stopped() && connected;}
 
 void TcpClient::connect()
 {
@@ -58,9 +58,12 @@ void TcpClient::readHeader()
                      [this](asio::error_code ec, std::size_t)
     {
         if(!ec && readMsg.decodeHeader())
+        {
+            connected = true;
             readBody();
+        }
         else
-            socket.close();
+            closeSocket();
     });
 }
 
@@ -75,7 +78,7 @@ void TcpClient::readBody()
             readHeader();
         }
         else
-            socket.close();
+            closeSocket();
     });
 }
 
@@ -92,6 +95,12 @@ void TcpClient::write()
                 write();
         }
         else
-            socket.close();
+            closeSocket();
     });
+}
+
+void TcpClient::closeSocket()
+{
+    connected = false;
+    socket.close();
 }
