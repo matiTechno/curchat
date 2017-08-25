@@ -36,7 +36,7 @@ void TcpClient::connect()
     if(future.valid())
         future.get();
 
-    ioService.restart();
+    ioService.reset();
 
     socket = tcp::socket(ioService);
     asio::async_connect(socket, endpointIt,
