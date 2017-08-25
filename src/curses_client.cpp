@@ -44,6 +44,8 @@ void CursesClient::run()
 
     while(!quit)
     {
+        char c = getch();
+
         auto timeEnd = std::chrono::steady_clock::now();
         timeElapsed += std::chrono::duration<double>(timeEnd - timeStart).count();
         timeStart = timeEnd;
@@ -56,8 +58,6 @@ void CursesClient::run()
             if(!tcpClient.isConnected())
                 tcpClient.connect();
         }
-
-        char c = getch();
 
         getmaxyx(stdscr, winY, winX);
 

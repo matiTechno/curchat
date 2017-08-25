@@ -5,11 +5,12 @@
 #include <vector>
 #include <asio.hpp>
 #include <future>
+#include <atomic>
 
 using asio::ip::tcp;
 class MsgPool;
 
-// warning: multiple close() calls on the same socket
+// warning: possible multiple close() calls on the same socket
 class TcpClient
 {
 public:
@@ -30,8 +31,10 @@ private:
     Message readMsg;
     std::vector<Message> msgsToWrite;
     std::future<void> future;
+    std::atomic_bool connected{false};
 
     void readHeader();
     void readBody();
     void write();
+    void closeSocket();
 };
