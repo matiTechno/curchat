@@ -33,7 +33,7 @@ void CursesClient::run()
 {
     int winX, winY;
     getmaxyx(stdscr, winY, winX);
-    drawLineH(winY - 2, winX, true);
+    drawLineH(winY - 2, winX, false);
     move(winY - 1, 0);
     refresh();
 
@@ -195,6 +195,10 @@ void CursesClient::drawLineH(int Y, int winX, bool animate)
     if(!connected)
     {
         static int pos = 0, dir = 1;
+
+        if(animate)
+            pos += dir;
+
         if(pos >= winX - 1)
         {
             pos = winX - 1;
@@ -207,9 +211,6 @@ void CursesClient::drawLineH(int Y, int winX, bool animate)
         attron(COLOR_PAIR(COLOR_GREEN) | A_BOLD);
         addch('?');
         standend();
-
-        if(animate)
-            pos += dir;
     }
 }
 

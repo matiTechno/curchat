@@ -17,8 +17,7 @@ TEST RUN:
     curserver &
     curchat
 
-curchat:
-        * ^C - exit
+    Ctrl+C - exit
 
 command-line arguments:
 
