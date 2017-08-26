@@ -29,8 +29,6 @@ void TcpClient::send(Message msg)
     });
 }
 
-bool TcpClient::isConnected() const {return !ioService.stopped() && connected;}
-
 void TcpClient::connect()
 {
     if(future.valid())

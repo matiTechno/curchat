@@ -55,7 +55,7 @@ void CursesClient::run()
         {
             repaint = true;
             timeElapsed = 0;
-            if(!tcpClient.isConnected())
+            if(tcpClient.isStopped())
                 tcpClient.connect();
         }
 
@@ -78,8 +78,6 @@ void CursesClient::run()
 
         case '\n':
             if(tcpClient.isConnected())
-                // might be invoked right after ioService stops
-                // fix this!
                 tcpClient.send(inputBuff);
 
             inputBuff.clear();

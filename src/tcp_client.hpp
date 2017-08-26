@@ -10,7 +10,10 @@
 using asio::ip::tcp;
 class MsgPool;
 
-// warning: possible multiple close() calls on the same socket
+// warnings:
+//          * possible multiple close() calls on the same socket
+//          * send might be invoked right after ioService stops
+//            (ioService will be restarted with pending send)
 class TcpClient
 {
 public:
@@ -18,9 +21,10 @@ public:
 
     ~TcpClient();
 
-    void send(Message msg);
-    void connect();
-    bool isConnected() const;
+    void send(Message msg); // use only when isConnected() == true
+    void connect();         // use only when isStopped() == true
+    bool isConnected() const {return connected;}
+    bool isStopped()   const {return ioService.stopped();}
 
 private:
     MsgPool& msgPool;
