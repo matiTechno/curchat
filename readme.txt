@@ -31,6 +31,8 @@ TODO:
        consumes 100% cpu
      * better command-line argument parsing
      * recent msgs colouring based on the session name and ip
+     * fix timeout magic numbers
+     * test timeout feature
 
 HOT:
     * limit the number of sessions

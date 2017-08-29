@@ -1,10 +1,12 @@
 #include "tcp_client.hpp"
 #include "msg_pool.hpp"
+#include <chrono>
 
 TcpClient::TcpClient(MsgPool& msgPool, std::string name, const char* host, const char* port):
     msgPool(msgPool),
     name(std::move(name)),
-    socket(ioService)
+    socket(ioService),
+    timer(ioService)
 {
     tcp::resolver resolver(ioService);
     endpointIt = resolver.resolve({host, port});
@@ -12,7 +14,7 @@ TcpClient::TcpClient(MsgPool& msgPool, std::string name, const char* host, const
 
 TcpClient::~TcpClient()
 {
-    ioService.post([this](){closeSocket();});
+    ioService.post([this](){stop();});
 
     if(future.valid())
         future.get();
@@ -43,6 +45,7 @@ void TcpClient::connect()
         if(!ec)
         {
             send(name);
+            setTimeout();
             readHeader();
         }
     });
@@ -61,7 +64,7 @@ void TcpClient::readHeader()
             readBody();
         }
         else
-            closeSocket();
+            stop();
     });
 }
 
@@ -76,7 +79,7 @@ void TcpClient::readBody()
             readHeader();
         }
         else
-            closeSocket();
+            stop();
     });
 }
 
@@ -88,17 +91,42 @@ void TcpClient::write()
     {
         if(!ec)
         {
+            timeout = false;
             msgsToWrite.erase(msgsToWrite.begin());
             if(msgsToWrite.size())
                 write();
         }
         else
-            closeSocket();
+            stop();
     });
 }
 
-void TcpClient::closeSocket()
+void TcpClient::setTimeout()
+{
+    using namespace std::chrono_literals;
+
+    timeout = true;
+
+    timer.expires_after(5s);
+
+    if(msgsToWrite.empty())
+        send(std::string("\\p"));
+
+    timer.async_wait([this](asio::error_code ec)
+    {
+        if(!ec)
+        {
+            if(timeout)
+                stop();
+            else
+                setTimeout();
+        }
+    });
+}
+
+void TcpClient::stop()
 {
     connected = false;
     socket.close();
+    timer.cancel();
 }

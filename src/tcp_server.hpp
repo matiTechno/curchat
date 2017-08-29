@@ -13,7 +13,7 @@ class ChatRoom;
 class ChatSession: public std::enable_shared_from_this<ChatSession>
 {
 public:
-    ChatSession(tcp::socket socket, ChatRoom& room);
+    ChatSession(tcp::socket socket, asio::steady_timer timer, ChatRoom& room);
 
     void start();
     void deliver(Message msg);
@@ -21,6 +21,7 @@ public:
 
 private:
     tcp::socket socket;
+    asio::steady_timer timer;
     ChatRoom& room;
     std::string name;
     Message readMsg;
@@ -29,6 +30,7 @@ private:
     void readHeader();
     void readBody();
     void write();
+    void setTimeout();
 };
 
 using ChatSessionPtr = std::shared_ptr<ChatSession>;
@@ -54,6 +56,7 @@ public:
     TcpServer(asio::io_service& ioService, const tcp::endpoint& endpoint);
 
 private:
+    asio::io_service& ioService;
     tcp::acceptor acceptor;
     tcp::socket socket;
     ChatRoom room;

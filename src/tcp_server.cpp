@@ -1,13 +1,16 @@
 #include "tcp_server.hpp"
+#include <chrono>
 
-ChatSession::ChatSession(tcp::socket socket, ChatRoom& room):
+ChatSession::ChatSession(tcp::socket socket, asio::steady_timer timer, ChatRoom& room):
     socket(std::move(socket)),
+    timer(std::move(timer)),
     room(room)
 {}
 
 void ChatSession::start()
 {
     room.join(shared_from_this());
+    setTimeout();
     readHeader();
 }
 
@@ -42,7 +45,11 @@ void ChatSession::readBody()
     {
         if(!ec)
         {
-            if(name.empty())
+            timer.cancel();
+
+            if(readMsg.getStdString() == "\\p");
+
+            else if(name.empty())
             {
                 name = readMsg.getStdString();
                 room.deliver("\\b\\2" + name + " has joined the chat. Welcome!", nullptr);
@@ -80,6 +87,23 @@ void ChatSession::write()
     });
 }
 
+void ChatSession::setTimeout()
+{
+    auto self = shared_from_this();
+
+    using namespace std::chrono_literals;
+
+    timer.expires_after(5s * 2);
+
+    timer.async_wait([this, self](asio::error_code ec)
+    {
+        if(ec == asio::error::operation_aborted)
+            setTimeout();
+        else
+            socket.close();
+    });
+}
+
 void ChatRoom::join(ChatSessionPtr session)
 {
     sessions.insert(session);
@@ -105,6 +129,7 @@ void ChatRoom::deliver(Message msg, const ChatSession* sender)
 }
 
 TcpServer::TcpServer(asio::io_service& ioService, const tcp::endpoint& endpoint):
+    ioService(ioService),
     acceptor(ioService, endpoint),
     socket(ioService)
 {
@@ -116,7 +141,7 @@ void TcpServer::accept()
     acceptor.async_accept(socket, [this](asio::error_code ec)
     {
         if(!ec)
-            std::make_shared<ChatSession>(std::move(socket), room)->start();
+            std::make_shared<ChatSession>(std::move(socket), asio::steady_timer(ioService), room)->start();
 
         accept();
     });

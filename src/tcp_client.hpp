@@ -14,6 +14,9 @@ class MsgPool;
 //          * possible multiple close() calls on the same socket
 //          * send might be invoked right after ioService stops
 //            (ioService will be restarted with pending send)
+//
+// TODO: why use the timeout?
+
 class TcpClient
 {
 public:
@@ -36,9 +39,12 @@ private:
     std::vector<Message> msgsToWrite;
     std::future<void> future;
     std::atomic_bool connected{false};
+    asio::steady_timer timer;
+    bool timeout;
 
     void readHeader();
     void readBody();
     void write();
-    void closeSocket();
+    void stop();
+    void setTimeout();
 };
